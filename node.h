@@ -1,24 +1,26 @@
 #include "container.h"
 #include <type_traits>
-#include <vector>
 
 typedef unsigned long long int ProcUnit;
 
-template <typename ContainerType> class Node : public Container<ContainerType> {
+template <Stream stream> class Node : public Container<stream> {
 public:
   // Static assert to check if ContainerType is derived from Container
-  static_assert(is_container<ContainerType>::value,
-                "ContainerType must be derived from Container");
+  // static_assert(is_container<ContainerType>::value,
+  //               "ContainerType must be derived from Container");
 
-  std::vector<Node *> nodes;
   std::string content;
   bool prerender;
-  Node(ContainerType &s) : Container<ContainerType>(s) {}
+  Node(stream &s) : Container<stream>(s), content(""), prerender(false) {}
+  Node(stream &s, std::string c)
+      : Container<stream>(s), content(c), prerender(false) {}
+  Node(stream &s, std::string c, bool p)
+      : Container<stream>(s), content(c), prerender(p) {}
 
   template <typename T>
   typename std::enable_if<is_container<T>::value, void>::type
   operator<<(Node<T> &node) {
-    nodes.push_back(&node);
+    this->nodes.push_back(&node);
   }
 
   template <typename T>
@@ -30,7 +32,7 @@ public:
   template <typename T>
   typename std::enable_if<is_container<T>::value, void>::type
   operator<<(T *node) {
-    nodes.push_back(node);
+    this->nodes.push_back(node);
   }
 
   template <typename T>

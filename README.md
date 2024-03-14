@@ -2,7 +2,7 @@
 
 This is the Render class and all it's derivatives and base classes implemented to be more robust and template based.
 
-## Considerations
+## Dev Environment
 
-- Concepts??
-- Mixins??
+- Uses CPP 20 (cause the latest be cool)
+- Uses just plain old Makefile for building
