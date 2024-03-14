@@ -18,10 +18,9 @@ enum {
 };
 }
 
-template <Stream stream> class XML : public Node<stream> {
-private:
-  static ProcUnit ActiveRenderCount;
+static ProcUnit ActiveRenderCount = 0;
 
+template <Stream stream> class XML : public Node<stream> {
 public:
   ProcUnit RenderID;
   std::string tag, id, content;
@@ -34,7 +33,44 @@ public:
     ++ActiveRenderCount;
   }
 
-  XML(const std::string &_tag) throw() : tag(_tag) {}
+  XML(const std::string &_tag) throw() : tag(_tag) { XML::SetRenderID(); }
+  XML(const std::string &_tag, const std::string &_id)
+  throw() : tag(_tag), id(_id) { XML::SetRenderID(); }
+  XML(const std::string &_tag, const std::string &_id,
+      std::vector<std::string> &_classes)
+  throw() : tag(_tag), id(_id), classes(_classes) { XML::SetRenderID(); }
+  XML(const std::string &_tag, const std::string &_id,
+      std::vector<std::string> &_classes,
+      std::map<std::string, std::string> &_attributes)
+  throw() : tag(_tag), id(_id), classes(_classes), attributes(_attributes) {
+    XML::SetRenderID();
+  }
+
+  XML(const std::string &_tag, std::map<ProcUnit, void *> options)
+  throw() : tag(_tag) {
+    XML::SetRenderID();
+    SetOptions(options);
+  }
+  XML(const std::string &_tag, const std::string &_id,
+      std::map<ProcUnit, void *> options)
+  throw() : tag(_tag), id(_id) {
+    XML::SetRenderID();
+    SetOptions(options);
+  }
+  XML(const std::string &_tag, const std::string &_id,
+      std::vector<std::string> &_classes, std::map<ProcUnit, void *> options)
+  throw() : tag(_tag), id(_id), classes(_classes) {
+    XML::SetRenderID();
+    SetOptions(options);
+  }
+  XML(const std::string &_tag, const std::string &_id,
+      std::vector<std::string> &_classes,
+      std::map<std::string, std::string> &_attributes,
+      std::map<ProcUnit, void *> options)
+  throw() : tag(_tag), id(_id), classes(_classes), attributes(_attributes) {
+    XML::SetRenderID();
+    SetOptions(options);
+  }
 
   void SetOptions(std::map<ProcUnit, void *> options) {
     std::map<ProcUnit, void *>::iterator option;
