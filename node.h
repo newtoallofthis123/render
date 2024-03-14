@@ -9,9 +9,9 @@ public:
   // static_assert(is_container<Node>::value,
   // "ContainerType must be derived from Container");
 
-  std::string content;
   bool prerender;
-  Node(const std::string content) : content(content), prerender(false) {}
+  Node() : prerender(false) {}
+  Node(bool _prerender) : prerender(_prerender) {}
 
   std::vector<Node *> nodes;
 
@@ -20,7 +20,7 @@ public:
 
   inline void operator>>(stream &s) { this->render(s); }
 
-  void RenderHead(stream &s) { s << this->content; }
+  void RenderHead(stream &s) {}
   void RenderCorpus(stream &s) {
     for (auto &n : this->nodes) {
       n->render(s);

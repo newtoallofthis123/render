@@ -1,15 +1,21 @@
 #include "stream.h"
 #include <vector>
 
+typedef unsigned long long int ProcUnit;
+
 // The container class
 template <Stream StreamableType> class Container {
 public:
-  typedef unsigned long long int ProcUnit;
   std::vector<Container<StreamableType>> nodes;
 
   virtual void render(StreamableType &stream) {
     this->RenderHead(stream);
     this->RenderCorpus(stream);
+    this->RenderTail(stream);
+  }
+
+  virtual void prerender(StreamableType &stream) {
+    this->RenderHead(stream);
     this->RenderTail(stream);
   }
 

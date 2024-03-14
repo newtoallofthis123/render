@@ -1,15 +1,15 @@
-#include "node.h"
+#include "xml.h"
 #include <iostream>
 #include <ostream>
 using namespace std;
 
 int main() {
-  Node<ostream> n("Hello, World!");
-  Node<ostream> n2("Cool, World!");
-  
-  n << &n2;
+  XML<ostream> div("div");
+  XML<ostream> p("p");
 
-  n >> cout;
+  div << p;
+
+  div >> cout;
 
   return 0;
 }
