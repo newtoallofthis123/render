@@ -1,13 +1,12 @@
 #include "container.h"
-#include <type_traits>
 
 typedef unsigned long long int ProcUnit;
 
 template <Stream stream> class Node : public Container<stream> {
 public:
   // Static assert to check if ContainerType is derived from Container
-  // static_assert(is_container<ContainerType>::value,
-  //               "ContainerType must be derived from Container");
+  // static_assert(is_container<Node>::value,
+  // "ContainerType must be derived from Container");
 
   std::string content;
   bool prerender;
@@ -17,37 +16,11 @@ public:
   Node(stream &s, std::string c, bool p)
       : Container<stream>(s), content(c), prerender(p) {}
 
-  template <typename T>
-  typename std::enable_if<is_container<T>::value, void>::type
-  operator<<(Node<T> &node) {
-    this->nodes.push_back(&node);
-  }
+  inline void operator<<(Node *n) { this->nodes.push_back(n); }
+  inline void operator<<(Node &n) { this->nodes.push_back(&n); }
+  inline void operator>>(stream &s) { this->render(s); }
 
-  template <typename T>
-  typename std::enable_if<!is_container<T>::value, void>::type
-  operator<<(T &content) {
-    this->content += content;
-  }
-
-  template <typename T>
-  typename std::enable_if<is_container<T>::value, void>::type
-  operator<<(T *node) {
-    this->nodes.push_back(node);
-  }
-
-  template <typename T>
-  typename std::enable_if<!is_container<T>::value, void>::type
-  operator<<(T *content) {
-    this->content += *content;
-  }
-
-  template <typename T, typename... Others> void add(T &content) {
-    this->operator<<(content);
-  }
-
-  template <typename T, typename... Others>
-  void add(T &content, Others &...others) {
-    this->operator<<(content);
-    this->add(others...);
+  void RenderHead(stream &s){
+    s << this->content;
   }
 };

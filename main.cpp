@@ -4,16 +4,14 @@
 using namespace std;
 
 int main() {
-  Node<ostream> node(cout, "Hello");
-  // Node<ostream> n2(cout);
-  // Node<ostream> n3(cout);
+  auto node = Node<ostream>(cout, "Hello");
+  auto n2 = Node<ostream>(cout, "World");
+  auto n3 = Node<ostream>(cout, "!!!");
 
-  string s = "Hello";
-  string s2 = "World";
+  node << &n2;
+  node << n3;
 
-  // node.add(s, n2, s2, n3);
-
-  cout << node.content << endl;
+  node >> cout;
 
   return 0;
 }

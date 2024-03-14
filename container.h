@@ -24,7 +24,7 @@ public:
   virtual void RenderCorpus(StreamableType &stream) {
     if (!this->nodes.empty()) {
       for (ProcUnit i = 0, L = this->nodes.size(); i < L; ++i) {
-        stream << "Hello";
+        // stream << *this->nodes[i];
         // This is going to be where the actual stuff gets appended to the
         // stream.
         // Now this is where I would need to figure out how to actually
@@ -39,6 +39,6 @@ public:
 
 // Check if a type is a container
 template <typename T> struct is_container {
-  static constexpr bool value = std::is_base_of<std::ostream, T>::value ||
+  static constexpr bool value = std::is_base_of<Container<std::ostream>, T>::value ||
                                 std::is_base_of<Container<T>, T>::value;
 };
