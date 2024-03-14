@@ -1,4 +1,5 @@
 #include "container.h"
+#include <vector>
 
 typedef unsigned long long int ProcUnit;
 
@@ -10,17 +11,20 @@ public:
 
   std::string content;
   bool prerender;
-  Node(stream &s) : Container<stream>(s), content(""), prerender(false) {}
-  Node(stream &s, std::string c)
-      : Container<stream>(s), content(c), prerender(false) {}
-  Node(stream &s, std::string c, bool p)
-      : Container<stream>(s), content(c), prerender(p) {}
+  Node(const std::string content) : content(content), prerender(false) {}
+
+  std::vector<Node *> nodes;
 
   inline void operator<<(Node *n) { this->nodes.push_back(n); }
   inline void operator<<(Node &n) { this->nodes.push_back(&n); }
+
   inline void operator>>(stream &s) { this->render(s); }
 
-  void RenderHead(stream &s){
-    s << this->content;
+  void RenderHead(stream &s) { s << this->content; }
+  void RenderCorpus(stream &s) {
+    for (auto &n : this->nodes) {
+      n->render(s);
+    }
   }
+  void RenderTail(stream &s) {}
 };

@@ -6,5 +6,5 @@
 // integrated and checked.
 template <typename T>
 concept Stream = requires(T t) {
-  { t << "" } -> std::convertible_to<T &>;
+  { t << nullptr } -> std::convertible_to<T &>;
 };
