@@ -1,12 +1,12 @@
 #include "html_message.h"
 #include "xml.h"
 #include <cstdlib>
-#include <cstring>
 #include <fcntl.h>
 #include <iostream>
 #include <netinet/in.h>
 #include <ostream>
 #include <signal.h>
+#include <strstream>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -102,7 +102,6 @@ int main() {
     }
     HTML html;
     ssize_t bytesRead = read(clientSocket, &html, sizeof(html));
-    cout << "Bytes read: " << bytesRead << endl;
     if (bytesRead != sizeof(html)) {
       std::cerr << "Read failed" << std::endl;
       exit(EXIT_FAILURE);
@@ -115,10 +114,20 @@ int main() {
       std::cerr << "Failed to open log file" << std::endl;
       exit(EXIT_FAILURE);
     }
-    write(logFile, html.content, strlen(html.content));
-    close(logFile);
+    write(logFile, "Received HTML Request\n", 22);
 
-    // Close the client socket
+    XML<ostream> xml(html.tag, html.id);
+    xml.content = html.content;
+
+    std::ostrstream oss;
+
+    xml.render(oss);
+
+    std::string str = oss.str();
+
+    cout << str << endl;
+
+    close(logFile);
     close(clientSocket);
   }
 
