@@ -4,7 +4,6 @@
 #include <cstring>
 #include <fcntl.h>
 #include <iostream>
-#include <iterator>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -42,8 +41,6 @@ int main(int argc, char const *argv[]) {
     strcat(message, argv[i]);
     strcat(message, " ");
   }
-  
-  cout << message << endl;
 
   HTML html;
   strcpy(html.content, message);
@@ -54,6 +51,18 @@ int main(int argc, char const *argv[]) {
     std::cerr << "Send failed" << std::endl;
     exit(EXIT_FAILURE);
   }
+
+  char buffer[1024 * 1024];
+  string response;
+
+  if (recv(clientSocket, buffer, 1024 * 1024, 0) < 0) {
+    std::cerr << "Receive failed" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+
+  response = buffer;
+
+  cout << response << endl;
 
   close(clientSocket);
 

@@ -1,8 +1,0 @@
-stream.h{
-    TODO: [] : Be able to << and >> to a stream
-    TODO: [DONE] : Have a generic way to pass in a stream
-},
-
-container.h{
-    FEAT: [] : Be able to override the nodes in a container
-} 

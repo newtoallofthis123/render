@@ -1,5 +1,5 @@
 build:
-	@g++ -o ./bin/render main.cpp -std=c++20
+	@g++ -o ./bin/render server.cpp -std=c++20
 run: build
 	@./bin/render
 clean:

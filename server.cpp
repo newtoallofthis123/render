@@ -1,4 +1,5 @@
 #include "html_message.h"
+#include "utils.h"
 #include "xml.h"
 #include <cstdlib>
 #include <fcntl.h>
@@ -15,6 +16,7 @@
 using namespace std;
 
 #define PORT 8888
+#define LOG_DIR "/tmp/render"
 
 void signalHandler(int signal) { exit(EXIT_SUCCESS); }
 
@@ -35,7 +37,16 @@ int main() {
     exit(EXIT_FAILURE);
   }
 
-  if (chdir("/tmp/render") < 0) {
+  fileExists(LOG_DIR) || mkdir(LOG_DIR, 0700);
+
+  string log_file_path = LOG_DIR;
+  log_file_path += "/server_log.txt";
+
+  if (fileExists(log_file_path)) {
+    remove(log_file_path.c_str());
+  }
+
+  if (chdir(LOG_DIR) < 0) {
     std::cerr << "chdir failed" << std::endl;
     exit(EXIT_FAILURE);
   }
@@ -54,9 +65,11 @@ int main() {
     exit(EXIT_FAILURE);
   }
 
-  // redirect cout to log file
-  int logFile =
-      open("/tmp/render/server_log.txt", O_WRONLY | O_CREAT | O_APPEND, 0666);
+  cout << "Server Started On Port " << PORT << endl;
+
+  const char *log_file = log_file_path.c_str();
+
+  int logFile = open(log_file, O_WRONLY | O_CREAT | O_APPEND, 0666);
 
   if (logFile < 0) {
     cout << "Log file creation failed" << endl;
@@ -81,12 +94,10 @@ int main() {
   if (bind(serverSocket, (struct sockaddr *)&serverAddress,
            sizeof(serverAddress)) < 0) {
     std::cerr << "Socket bind failed" << std::endl;
-    exit(EXIT_FAILURE);
   }
 
   if (listen(serverSocket, 5) < 0) {
-    std::cerr << "Listen failed" << std::endl;
-    exit(EXIT_FAILURE);
+    std::cerr << "ERR: Listen failed" << std::endl;
   }
 
   int clientSocket;
@@ -97,24 +108,13 @@ int main() {
     clientSocket = accept(serverSocket, (struct sockaddr *)&clientAddress,
                           &clientAddressLength);
     if (clientSocket < 0) {
-      std::cerr << "Accept failed" << std::endl;
-      exit(EXIT_FAILURE);
+      std::cerr << "ERR: Accept failed" << std::endl;
     }
     HTML html;
     ssize_t bytesRead = read(clientSocket, &html, sizeof(html));
     if (bytesRead != sizeof(html)) {
-      std::cerr << "Read failed" << std::endl;
-      exit(EXIT_FAILURE);
+      std::cerr << "ERR: Read failed" << std::endl;
     }
-
-    // Write data from the Message struct to the log file
-    int logFile =
-        open("/tmp/render/log.txt", O_WRONLY | O_CREAT | O_APPEND, 0666);
-    if (logFile < 0) {
-      std::cerr << "Failed to open log file" << std::endl;
-      exit(EXIT_FAILURE);
-    }
-    write(logFile, "Received HTML Request\n", 22);
 
     XML<ostream> xml(html.tag, html.id);
     xml.content = html.content;
@@ -125,7 +125,10 @@ int main() {
 
     std::string str = oss.str();
 
-    cout << str << endl;
+    ssize_t bytesWritten = write(clientSocket, str.c_str(), str.size());
+    if (bytesWritten != str.size()) {
+      std::cerr << "ERR: Write failed" << std::endl;
+    }
 
     close(logFile);
     close(clientSocket);
