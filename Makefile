@@ -9,3 +9,7 @@ client_build:
 	@g++ -o ./bin/client client.cpp -std=c++20
 client_run: client_build
 	@./bin/client
+test_build:
+	@g++ -o ./bin/test test.cpp -std=c++20
+test_run: test_build
+	@./bin/test

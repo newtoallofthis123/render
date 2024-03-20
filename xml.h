@@ -102,6 +102,20 @@ public:
     this->children.push_back(static_cast<XML *>(&object));
   }
 
+  inline XML operator[](unsigned int i) const {
+    if (i >= this->children.size()) {
+      throw std::out_of_range("Index out of range");
+    }
+    return *this->children[i];
+  }
+
+  inline XML &operator[](unsigned int i) {
+    if (i >= this->children.size()) {
+      throw std::out_of_range("Index out of range");
+    }
+    return *this->children[i];
+  }
+
   inline void RenderHead(std::ostream &outputstream) {
     outputstream << std::endl << "<";
     if (!this->id.empty())

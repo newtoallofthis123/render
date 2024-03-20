@@ -20,6 +20,19 @@ public:
 
   inline void operator>>(stream &s) { this->render(s); }
 
+  inline Node operator[](unsigned int i) const {
+    if (i >= this->nodes.size()) {
+      throw std::out_of_range("Index out of range");
+    }
+    return *this->nodes[i];
+  }
+  inline Node &operator[](unsigned int i) {
+    if (i >= this->nodes.size()) {
+      throw std::out_of_range("Index out of range");
+    }
+    return *this->nodes[i];
+  }
+
   void RenderHead(stream &s) {}
   void RenderCorpus(stream &s) {
     for (auto &n : this->nodes) {
