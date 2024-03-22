@@ -116,6 +116,12 @@ public:
     return *this->nodes[i];
   }
 
+  inline void render(stream &outputstream){
+    RenderHead(outputstream);
+    RenderCorpus(outputstream);
+    RenderTail(outputstream);
+  }
+
   inline void RenderHead(stream &outputstream) {
     outputstream << std::endl << "<";
     if (!this->id.empty())
@@ -149,10 +155,10 @@ public:
   }
 
   inline void operator>>(stream &outputstream) {
-    this->render(outputstream);
+    render(outputstream);
   }
 
-  inline friend std::ostream &operator<<(std::ostream &outputstream, XML &obj) {
+  inline friend stream &operator<<(stream &outputstream, XML &obj) {
     obj.render(outputstream);
     return outputstream;
   }

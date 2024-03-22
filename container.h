@@ -26,11 +26,8 @@ public:
   virtual void RenderTail(StreamableType &stream) {}
 
   virtual void operator>>(StreamableType &stream) { this->render(stream); }
-};
 
-// Check if a type is a container
-template <typename T> struct is_container {
-  static constexpr bool value =
-      std::is_base_of<Container<std::ostream>, T>::value ||
-      std::is_base_of<Container<T>, T>::value;
+  virtual void operator<<(Container<StreamableType> *n) {
+    this->nodes.push_back(*n);
+  }
 };

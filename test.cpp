@@ -1,18 +1,24 @@
 #include "xml.h"
 #include <iostream>
 #include <ostream>
+#include <sstream>
 using namespace std;
 
 int main() {
-  XML<ostream> div("div"), p("p"), h1("h1");
+  XML<std::stringstream> div("div"), p("p"), h1("h1");
 
-  p.content = "Hello, World!";
-  h1.content = "Wow! You can really dance!";
+  div.content = "wow";
+  p.content = "hello";
+  h1.content = "world";
+
   div << p;
   div << h1;
 
-  auto some = div[1];
-  some.render(cout);
+  auto output = std::stringstream();
+
+  output << div;
+
+  cout << output.str() << endl;
 
   return 0;
 }

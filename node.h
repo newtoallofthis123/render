@@ -5,10 +5,6 @@ typedef unsigned long long int ProcUnit;
 
 template <Stream stream> class Node : public Container<stream> {
 public:
-  // Static assert to check if ContainerType is derived from Container
-  // static_assert(is_container<Node>::value,
-  // "ContainerType must be derived from Container");
-
   bool prerender;
   Node() : prerender(false) {}
   Node(bool _prerender) : prerender(_prerender) {}
