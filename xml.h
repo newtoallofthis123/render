@@ -1,5 +1,6 @@
 #include "node.h"
 #include <map>
+#include <ostream>
 
 namespace Option {
 enum {
@@ -17,7 +18,6 @@ enum {
   message
 };
 }
-
 static ProcUnit ActiveRenderCount = 0;
 
 template <Stream stream> class XML : public Node<stream> {
@@ -26,7 +26,7 @@ public:
   std::string tag, id, content;
   std::map<std::string, std::string> attributes;
   std::vector<std::string> classes;
-  std::vector<XML *> children;
+  std::vector<XML *> nodes;
 
   inline const void SetRenderID() {
     RenderID = ActiveRenderCount;
@@ -95,28 +95,28 @@ public:
   }
 
   inline void operator<<(XML *object) {
-    this->children.push_back(static_cast<XML *>(object));
+    this->nodes.push_back(static_cast<XML *>(object));
   }
 
   inline void operator<<(XML &object) {
-    this->children.push_back(static_cast<XML *>(&object));
+    this->nodes.push_back(static_cast<XML *>(&object));
   }
 
   inline XML operator[](unsigned int i) const {
-    if (i >= this->children.size()) {
+    if (i >= this->nodes.size()) {
       throw std::out_of_range("Index out of range");
     }
-    return *this->children[i];
+    return *this->nodes[i];
   }
 
   inline XML &operator[](unsigned int i) {
-    if (i >= this->children.size()) {
+    if (i >= this->nodes.size()) {
       throw std::out_of_range("Index out of range");
     }
-    return *this->children[i];
+    return *this->nodes[i];
   }
 
-  inline void RenderHead(std::ostream &outputstream) {
+  inline void RenderHead(stream &outputstream) {
     outputstream << std::endl << "<";
     if (!this->id.empty())
       outputstream << this->tag << " id=\"" << this->id << "\"";
@@ -137,18 +137,18 @@ public:
       outputstream << std::endl << this->content << std::endl;
   }
 
-  inline void RenderCorpus(std::ostream &outputstream) {
-    if (!this->children.empty())
-      for (ProcUnit i = 0, L = this->children.size(); i < L; ++i) {
-        outputstream << *this->children[i];
+  inline void RenderCorpus(stream &outputstream) {
+    if (!this->nodes.empty())
+      for (ProcUnit i = 0, L = this->nodes.size(); i < L; ++i) {
+        outputstream << *this->nodes[i];
       }
   }
 
-  inline void RenderTail(std::ostream &outputstream) {
+  inline void RenderTail(stream &outputstream) {
     outputstream << std::endl << "</" << this->tag << ">";
   }
 
-  inline void operator>>(std::ostream &outputstream) {
+  inline void operator>>(stream &outputstream) {
     this->render(outputstream);
   }
 
