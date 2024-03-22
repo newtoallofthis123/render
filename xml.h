@@ -116,7 +116,7 @@ public:
     return *this->nodes[i];
   }
 
-  inline void render(stream &outputstream){
+  inline void render(stream &outputstream) {
     RenderHead(outputstream);
     RenderCorpus(outputstream);
     RenderTail(outputstream);
@@ -154,9 +154,7 @@ public:
     outputstream << std::endl << "</" << this->tag << ">";
   }
 
-  inline void operator>>(stream &outputstream) {
-    render(outputstream);
-  }
+  inline void operator>>(stream &outputstream) { render(outputstream); }
 
   inline friend stream &operator<<(stream &outputstream, XML &obj) {
     obj.render(outputstream);

@@ -1,24 +1,19 @@
-#include "xml.h"
-#include <iostream>
-#include <ostream>
-#include <sstream>
+#include "stream.h"
+#include <map>
+#include <vector>
 using namespace std;
 
 int main() {
-  XML<std::stringstream> div("div"), p("p"), h1("h1");
+  vector<int> v;
+  StreamUtil<vector<int>, int, int, int, int, int> su(v);
 
-  div.content = "wow";
-  p.content = "hello";
-  h1.content = "world";
+  su.add(1, 2, 3, 4, 5);
+  su.print();
 
-  div << p;
-  div << h1;
+  map<int, string> m;
+  StreamUtil<map<int, string>, pair<int, string>, pair<int, string>> su2(m);
 
-  auto output = std::stringstream();
+  su2.add(make_pair(1, "one"), make_pair(2, "two"));
+  su2.print();
 
-  output << div;
-
-  cout << output.str() << endl;
-
-  return 0;
 }
