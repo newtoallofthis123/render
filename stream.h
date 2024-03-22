@@ -17,13 +17,24 @@ concept Store = requires(T t) {
   { t.size() } -> std::integral;
 };
 
+// check if the store is a vector
 template <typename T>
-concept HasPushBack =
-    requires(T t) { t.push_back(std::declval<typename T::value_type>()); };
+concept Vector = Store<T> && requires(T t) {
+  { t.push_back(std::declval<typename T::value_type>()) };
+};
 
+// check if the store is a map, i.e., it has insert and also has a key_type
 template <typename T>
-concept HasInsert =
-    requires(T t) { t.insert(std::declval<typename T::value_type>()); };
+concept Map = Store<T> && requires(T t) {
+  { t.insert(std::declval<typename T::value_type>()) };
+  { t.key_type } -> std::same_as<typename T::key_type>;
+};
+
+// check if the store is a set
+template <typename T>
+concept Set = Store<T> && requires(T t) {
+  { t.insert(std::declval<typename T::value_type>()) };
+};
 
 template <Store store, typename... Args> class StreamUtil {
 public:
@@ -31,26 +42,27 @@ public:
   store s;
 
   void add(Args... args) {
-    if constexpr (HasPushBack<store>) {
+    if constexpr (Vector<store>) {
       (s.push_back(args), ...);
-    } else if constexpr (HasInsert<store>) {
+    } else if constexpr (Map<store>) {
       (s.insert(args), ...);
-    } else {
-      std::cout << "No push_back or insert found" << std::endl;
+    } else if constexpr (Set<store>) {
+      (s.insert(args), ...);
     }
   }
 
   void print() {
-    if constexpr (HasPushBack<store>) {
+    if constexpr (Vector<store> || Set<store>) {
       for (auto &i : s) {
         std::cout << i << " ";
       }
-    } else if constexpr (HasInsert<store>) {
+      std::cout << std::endl;
+    } else if constexpr (Map<store>) {
       for (auto &i : s) {
-        std::cout << i.first << " " << i.second << " ";
+        std::cout << i.first << " " << i.second << std::endl;
       }
-    } else {
-      std::cout << "No push_back or insert found" << std::endl;
+    } else{
+      std::cout << "Don't know how to print this store" << std::endl;
     }
   }
 };
