@@ -3,7 +3,7 @@
 
 typedef unsigned long long int ProcUnit;
 
-template <Stream stream> class Node : public Container<stream> {
+template <Streamability stream> class Node : public Container<stream> {
 public:
   bool prerender;
   Node() : prerender(false) {}

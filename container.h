@@ -4,30 +4,30 @@
 typedef unsigned long long int ProcUnit;
 
 // The container class
-template <Stream StreamableType> class Container {
+template <Streamable streamT> class Container {
 public:
-  std::vector<Container<StreamableType>> nodes;
+  std::vector<Container<streamT>> nodes;
 
-  virtual void render(StreamableType &stream) {
+  virtual void render(streamT &stream) {
     this->RenderHead(stream);
     this->RenderCorpus(stream);
     this->RenderTail(stream);
   }
 
-  virtual void prerender(StreamableType &stream) {
+  virtual void prerender(streamT &stream) {
     this->RenderHead(stream);
     this->RenderTail(stream);
   }
 
-  virtual void RenderHead(StreamableType &stream) {}
+  virtual void RenderHead(streamT &stream) {}
 
-  virtual void RenderCorpus(StreamableType &stream) {}
+  virtual void RenderCorpus(streamT &stream) {}
 
-  virtual void RenderTail(StreamableType &stream) {}
+  virtual void RenderTail(streamT &stream) {}
 
-  virtual void operator>>(StreamableType &stream) { this->render(stream); }
+  virtual void operator>>(streamT &stream) { this->render(stream); }
 
-  virtual void operator<<(Container<StreamableType> *n) {
+  virtual void operator<<(Container<streamT> *n) {
     this->nodes.push_back(*n);
   }
 };

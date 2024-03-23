@@ -20,7 +20,7 @@ enum {
 }
 static ProcUnit ActiveRenderCount = 0;
 
-template <Stream stream> class XML : public Node<stream> {
+template <Streamability stream> class XML : public Node<stream> {
 public:
   ProcUnit RenderID;
   std::string tag, id, content;
