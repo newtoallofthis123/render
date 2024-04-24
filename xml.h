@@ -20,13 +20,12 @@ enum {
 }
 static ProcUnit ActiveRenderCount = 0;
 
-template <Streamability stream> class XML : public Node<stream> {
+template <Streamable streamT> class XML : public Node<streamT> {
 public:
   ProcUnit RenderID;
   std::string tag, id, content;
   std::map<std::string, std::string> attributes;
   std::vector<std::string> classes;
-  std::vector<XML *> nodes;
 
   inline const void SetRenderID() {
     RenderID = ActiveRenderCount;
@@ -95,11 +94,11 @@ public:
   }
 
   inline void operator<<(XML *object) {
-    this->nodes.push_back(static_cast<XML *>(object));
+    this->nodes.push_back(object);
   }
 
   inline void operator<<(XML &object) {
-    this->nodes.push_back(static_cast<XML *>(&object));
+    this->nodes.push_back(&object);
   }
 
   inline XML operator[](unsigned int i) const {
@@ -116,13 +115,13 @@ public:
     return *this->nodes[i];
   }
 
-  inline void render(stream &outputstream) {
+  inline void render(streamT &outputstream) {
     RenderHead(outputstream);
     RenderCorpus(outputstream);
     RenderTail(outputstream);
   }
 
-  inline void RenderHead(stream &outputstream) {
+  inline void RenderHead(streamT &outputstream) {
     outputstream << std::endl << "<";
     if (!this->id.empty())
       outputstream << this->tag << " id=\"" << this->id << "\"";
@@ -143,20 +142,20 @@ public:
       outputstream << std::endl << this->content << std::endl;
   }
 
-  inline void RenderCorpus(stream &outputstream) {
+  inline void RenderCorpus(streamT &outputstream) {
     if (!this->nodes.empty())
       for (ProcUnit i = 0, L = this->nodes.size(); i < L; ++i) {
-        outputstream << *this->nodes[i];
+        outputstream << &this->nodes[i];
       }
   }
 
-  inline void RenderTail(stream &outputstream) {
+  inline void RenderTail(streamT &outputstream) {
     outputstream << std::endl << "</" << this->tag << ">";
   }
 
-  inline void operator>>(stream &outputstream) { render(outputstream); }
+  inline void operator>>(streamT &outputstream) { render(outputstream); }
 
-  inline friend stream &operator<<(stream &outputstream, XML &obj) {
+  inline friend streamT &operator<<(streamT &outputstream, XML &obj) {
     obj.render(outputstream);
     return outputstream;
   }

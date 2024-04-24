@@ -1,9 +1,11 @@
 #include <iostream>
+#include <ostream>
 #include <type_traits>
+#include <vector>
 
 template <typename T>
 concept Streamability = requires(T t) {
-  { t << std::declval<const char *>() };
+  { t << "" };
 };
 
 template <typename T>
@@ -19,16 +21,35 @@ concept Keyspace = requires(StreamableType st) {
   { st.nodes } -> std::same_as<ContainerType<Args...>>;
 };
 
+template <typename StreamableType>
+concept Streamable = std::is_base_of<std::ostream, StreamableType>::value;
+
+template<Streamable streamT>
 class Stream {
 public:
-  virtual void operator<<(const char *s) = 0;
+  std::vector<Stream<streamT>> nodes;
+
+  virtual void render(streamT &stream) {
+    this->RenderHead(stream);
+    this->RenderCorpus(stream);
+    this->RenderTail(stream);
+  }
+
+  virtual void prerender(streamT &stream) {
+    this->RenderHead(stream);
+    this->RenderTail(stream);
+  }
+
+  virtual void RenderHead(streamT &stream) {}
+
+  virtual void RenderCorpus(streamT &stream) {}
+
+  virtual void RenderTail(streamT &stream) {}
 };
 
-template <typename StreamableType>
-concept Streamable = std::is_base_of<Stream, StreamableType>::value;
-
-template <typename StreamableType,
-          template <typename...> typename ContainerType, typename LastArg,
-          typename... Args>
-concept LastParameterIsStream =
-    Keyspace<StreamableType, ContainerType, Args...> && Streamable<LastArg>;
+// For now
+// template <typename StreamableType,
+//           template <typename...> typename ContainerType, typename LastArg,
+//           typename... Args>
+// concept LastParameterIsStream =
+//     Keyspace<StreamableType, ContainerType, Args...> && Streamable<LastArg>;
