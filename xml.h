@@ -1,6 +1,7 @@
 #include "node.h"
 #include <map>
 #include <ostream>
+#include <vector>
 
 namespace Option {
 enum {
@@ -17,20 +18,37 @@ enum {
   service,
   message
 };
-}
-static ProcUnit ActiveRenderCount = 0;
+};
 
-template <Streamable streamT> class XML : public Node<streamT> {
+class XML : public Node {
+private:
+  ProcUnit ActiveRenderCount = 0;
+
 public:
   ProcUnit RenderID;
   std::string tag, id, content;
   std::map<std::string, std::string> attributes;
   std::vector<std::string> classes;
 
+  // Set Unique Global Render ID based on static member ActiveRenderCount
   inline const void SetRenderID() {
     RenderID = ActiveRenderCount;
     ++ActiveRenderCount;
   }
+
+  /************************
+   *   CONSTRUCTORS        *
+   *                       *
+   * Supply NULL to skip an argument
+   * XML(tag [,options])
+   * XML(tag,id [,options])
+   * XML(tag,id,classes [,options])
+   * XML(tag,id,classes,attributes [,options])
+   * XML(tag,id,classes,attributes [,options])
+   *                       *
+   *                       */
+
+  /* Strict Typing */
 
   XML(const std::string &_tag) throw() : tag(_tag) { XML::SetRenderID(); }
   XML(const std::string &_tag, const std::string &_id)
@@ -44,6 +62,8 @@ public:
   throw() : tag(_tag), id(_id), classes(_classes), attributes(_attributes) {
     XML::SetRenderID();
   }
+
+  /* Mixed Typing */
 
   XML(const std::string &_tag, std::map<ProcUnit, void *> options)
   throw() : tag(_tag) {
@@ -71,6 +91,17 @@ public:
     SetOptions(options);
   }
 
+  /* Options only */
+
+  XML(std::map<ProcUnit, void *> options) {
+    XML::SetRenderID();
+    SetOptions(options);
+  }
+
+  /************************
+   *       ACTIONS         *
+   *                       */
+
   void SetOptions(std::map<ProcUnit, void *> options) {
     std::map<ProcUnit, void *>::iterator option;
     for (option = options.begin(); option != options.end(); ++option) {
@@ -87,75 +118,93 @@ public:
       case Option::attributes:
         attributes = *(std::map<std::string, std::string> *)(option->second);
         break;
-      default:
+      default: /* generic option call; */
         break;
       }
     }
   }
 
-  inline void operator<<(XML *object) {
-    this->nodes.push_back(object);
+  /************************
+   *   STREAM TO CLASS     *
+   *                       */
+
+  /** Nests child nodes into the instance by pointer */
+  inline void operator<<(Node *object) {
+    this->nodes.push_back(static_cast<XML *>(object));
   }
 
-  inline void operator<<(XML &object) {
-    this->nodes.push_back(&object);
+  /** Nests child nodes into the instance by reference */
+  inline void operator<<(Node &object) {
+    this->nodes.push_back(static_cast<XML *>(&object));
   }
 
-  inline XML operator[](unsigned int i) const {
-    if (i >= this->nodes.size()) {
-      throw std::out_of_range("Index out of range");
-    }
-    return *this->nodes[i];
+  /************************
+   *   RENDERING PIPELINE  *
+   *                       */
+
+  inline void prerender(std::ostream &outputstream, const XML &object) {
+    this->RenderHead(outputstream);
+    this->RenderTail(outputstream);
   }
 
-  inline XML &operator[](unsigned int i) {
-    if (i >= this->nodes.size()) {
-      throw std::out_of_range("Index out of range");
-    }
-    return *this->nodes[i];
+  inline void render(std::ostream &outputstream) {
+    this->RenderHead(outputstream);
+    this->RenderCorpus(outputstream);
+    this->RenderTail(outputstream);
   }
 
-  inline void render(streamT &outputstream) {
-    RenderHead(outputstream);
-    RenderCorpus(outputstream);
-    RenderTail(outputstream);
-  }
-
-  inline void RenderHead(streamT &outputstream) {
-    outputstream << std::endl << "<";
+  /** Outputs this node's tag, id and attributes to the stream. */
+  inline void RenderHead(std::ostream &outputstream) {
+    // stream opening tag
+    outputstream << std::endl << "<"; // open tag
     if (!this->id.empty())
       outputstream << this->tag << " id=\"" << this->id << "\"";
     else
       outputstream << this->tag;
 
-    if (!this->attributes.empty()) {
+    // stream attributes
+    if (!this->attributes.empty()) // if node has attributes
+    {
       for (std::map<std::string, std::string>::const_iterator attribute =
                this->attributes.begin();
-           attribute != this->attributes.end(); ++attribute) {
+           attribute != this->attributes.end();
+           ++attribute) // for each attribute
+      {
         outputstream << " " << attribute->first << "=\"" << attribute->second
-                     << "\"";
+                     << "\""; // output attribute to stream
       }
     }
-    outputstream << ">";
+    outputstream << ">"; // close tag
 
     if (!this->content.empty())
       outputstream << std::endl << this->content << std::endl;
   }
 
-  inline void RenderCorpus(streamT &outputstream) {
+  /** Outputs any child nodes to stream. */
+  inline void RenderCorpus(std::ostream &outputstream) {
     if (!this->nodes.empty())
       for (ProcUnit i = 0, L = this->nodes.size(); i < L; ++i) {
-        outputstream << &this->nodes[i];
+        outputstream << *static_cast<XML *>(this->nodes[i]);
       }
   }
 
-  inline void RenderTail(streamT &outputstream) {
+  /** Outputs closing tag to stream. */
+  inline void RenderTail(std::ostream &outputstream) {
     outputstream << std::endl << "</" << this->tag << ">";
   }
 
-  inline void operator>>(streamT &outputstream) { render(outputstream); }
+  /************************
+   *   STREAM OPERATORS    *
+   *                       */
 
-  inline friend streamT &operator<<(streamT &outputstream, XML &obj) {
+  /** Funky XML>>cout syntax, works in situations without the non-member friend
+   */
+  inline void operator>>(std::ostream &outputstream) {
+    this->render(outputstream);
+  }
+
+  /** Supports "normal" syntax cout<<XML; is not really a member function */
+  inline friend std::ostream &operator<<(std::ostream &outputstream, XML &obj) {
     obj.render(outputstream);
     return outputstream;
   }

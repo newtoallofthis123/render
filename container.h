@@ -1,7 +1,5 @@
 #include "stream.h"
-
-typedef unsigned long long int ProcUnit;
+#include <ostream>
 
 // The container class
-template <Streamable streamT> class Container: Stream<streamT> {
-};
+class Container : public Stream<std::ostream> {};
