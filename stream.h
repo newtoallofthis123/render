@@ -1,9 +1,6 @@
-#include <algorithm>
 #include <iostream>
 #include <ostream>
-#include <string>
 #include <type_traits>
-#include <vector>
 
 template <typename T>
 concept Streamability = requires(T t) {
@@ -25,7 +22,7 @@ concept Store = requires(T t) {
 
 template <typename StreamableType,
           template <typename...> typename ContainerType, typename... Args>
-class Keyspace{
+class Keyspace {
   ContainerType<Args...> nodes;
 };
 
@@ -36,8 +33,7 @@ typedef unsigned long long int ProcUnit;
 
 template <Streamable streamT> class Stream {
 public:
-
-  virtual void render(streamT &stream) = 0; 
+  virtual void render(streamT &stream) = 0;
 
   virtual void prerender(streamT &stream) = 0;
 

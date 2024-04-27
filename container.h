@@ -1,5 +1,7 @@
 #include "stream.h"
 #include <ostream>
+#include <vector>
+#include <algorithm>
 
 // The container class
 class Container : public Stream<std::ostream> {
