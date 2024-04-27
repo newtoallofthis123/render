@@ -17,5 +17,5 @@ int main() {
   h1 << p;
   div << h1;
 
-  // cout << div;
+  cout << div;
 }
