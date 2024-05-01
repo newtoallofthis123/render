@@ -20,11 +20,6 @@ concept Store = requires(T t) {
 //   { st.nodes } -> std::same_as<ContainerType<Args...>>;
 // };
 
-template <typename StreamableType,
-          template <typename...> typename ContainerType, typename... Args>
-class Keyspace {
-  ContainerType<Args...> nodes;
-};
 
 template <typename StreamableType>
 concept Streamable = std::is_base_of<std::ostream, StreamableType>::value;

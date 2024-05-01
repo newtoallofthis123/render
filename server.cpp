@@ -116,7 +116,7 @@ int main() {
       std::cerr << "ERR: Read failed" << std::endl;
     }
 
-    XML<ostream> xml(html.tag, html.id);
+    XML xml(html.tag, html.id);
     xml.content = html.content;
 
     std::ostrstream oss;
