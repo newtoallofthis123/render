@@ -1,13 +1,14 @@
+// WARNING: The Keyspace thing is wrong
+//
 // template <typename StreamableType,
 //           template <typename...> typename ContainerType, typename... Args>
 // class Keyspace {
 //   ContainerType<Args...> nodes;
 // };
 
-#include "xml.h"
 #include <iostream>
 
-template <typename... Args> class KeySpace {
+template <typename... Args> class KeySpaceWrong {
 public:
   std::tuple<Args...> types;
 
@@ -18,5 +19,5 @@ public:
     }
   }
 
-  KeySpace(Args... args) : types(std::make_tuple(args...)) {}
+  KeySpaceWrong(Args... args) : types(std::make_tuple(args...)) {}
 };

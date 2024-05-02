@@ -2,10 +2,10 @@
 #include <ostream>
 #include <type_traits>
 
-template <typename T>
-concept Streamability = requires(T t) {
-  { t << "" };
-};
+// template <typename T>
+// concept Streamability = requires(T t) {
+//   { t << "" };
+// };
 
 template <typename T>
 concept Store = requires(T t) {
