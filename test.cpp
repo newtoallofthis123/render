@@ -3,5 +3,6 @@
 #include <vector>
 
 int main() {
-    StreamType<std::vector<int>, double, char, Node> stream1;
+    StreamType<std::vector<char>, int, double, char, XML> stream1;
+    return 0;
 }
