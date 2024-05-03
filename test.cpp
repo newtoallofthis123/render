@@ -1,8 +1,13 @@
-#include "streamtype.h"
 #include "xml.h"
-#include <vector>
+#include <iostream>
 
 int main() {
-    StreamType<std::vector<char>, int, double, char, XML> stream1;
-    return 0;
+  // StreamType<std::vector<int>, int, double, char, XML> stream1;
+
+  XML p("p");
+  p.content = "Hello World";
+
+  std::cout << p;
+
+  return 0;
 }

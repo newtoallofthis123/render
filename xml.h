@@ -148,14 +148,14 @@ public:
     this->RenderTail(outputstream);
   }
 
-  inline void render(std::ostream &outputstream) {
+  inline void render(std::ostream &outputstream) override {
     this->RenderHead(outputstream);
     this->RenderCorpus(outputstream);
     this->RenderTail(outputstream);
   }
 
   /** Outputs this node's tag, id and attributes to the stream. */
-  inline void RenderHead(std::ostream &outputstream) {
+  inline void RenderHead(std::ostream &outputstream) override {
     // stream opening tag
     outputstream << std::endl << "<"; // open tag
     if (!this->id.empty())
@@ -182,7 +182,7 @@ public:
   }
 
   /** Outputs any child nodes to stream. */
-  inline void RenderCorpus(std::ostream &outputstream) {
+  inline void RenderCorpus(std::ostream &outputstream) override {
     if (!this->nodes.empty())
       for (ProcUnit i = 0, L = this->nodes.size(); i < L; ++i) {
         outputstream << *static_cast<XML *>(this->nodes[i]);
@@ -190,7 +190,7 @@ public:
   }
 
   /** Outputs closing tag to stream. */
-  inline void RenderTail(std::ostream &outputstream) {
+  inline void RenderTail(std::ostream &outputstream) override {
     outputstream << std::endl << "</" << this->tag << ">";
   }
 

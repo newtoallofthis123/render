@@ -4,7 +4,7 @@
 #include <algorithm>
 
 // The container class
-class Container : public Stream<std::ostream> {
+class Container : public Stream {
 public:
   std::vector<Container *> nodes;
   std::vector<std::string> _node_labels;
