@@ -27,7 +27,7 @@ private:
 
 public:
   ProcUnit RenderID;
-  std::string tag, id, content;
+  std::string tag, id;
   std::map<std::string, std::string> attributes;
   std::vector<std::string> classes;
 
@@ -148,14 +148,14 @@ public:
     this->RenderTail(outputstream);
   }
 
-  inline void render(std::ostream &outputstream) override {
+  inline void render(std::ostream &outputstream) {
     this->RenderHead(outputstream);
     this->RenderCorpus(outputstream);
     this->RenderTail(outputstream);
   }
 
   /** Outputs this node's tag, id and attributes to the stream. */
-  inline void RenderHead(std::ostream &outputstream) override {
+  inline void RenderHead(std::ostream &outputstream) {
     // stream opening tag
     outputstream << std::endl << "<"; // open tag
     if (!this->id.empty())
@@ -182,7 +182,7 @@ public:
   }
 
   /** Outputs any child nodes to stream. */
-  inline void RenderCorpus(std::ostream &outputstream) override {
+  inline void RenderCorpus(std::ostream &outputstream) {
     if (!this->nodes.empty())
       for (ProcUnit i = 0, L = this->nodes.size(); i < L; ++i) {
         outputstream << *static_cast<XML *>(this->nodes[i]);
@@ -190,7 +190,7 @@ public:
   }
 
   /** Outputs closing tag to stream. */
-  inline void RenderTail(std::ostream &outputstream) override {
+  inline void RenderTail(std::ostream &outputstream) {
     outputstream << std::endl << "</" << this->tag << ">";
   }
 
