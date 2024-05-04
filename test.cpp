@@ -1,13 +1,16 @@
+#include "streamtype.h"
 #include "xml.h"
 #include <iostream>
 
+class SomeClass {
+public:
+  Stream stream;
+};
+
 int main() {
-  // StreamType<std::vector<int>, int, double, char, XML> stream1;
-
-  XML p("p");
-  p.content = "Hello World";
-
-  std::cout << p;
+  SomeClass h;
+  Stream instanceOfStream;
+  h.stream.hello(instanceOfStream);
 
   return 0;
 }
