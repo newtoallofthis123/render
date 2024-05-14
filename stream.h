@@ -31,7 +31,4 @@ public:
   template <typename StreamT> void RenderHead(NativeStream<StreamT> &stream);
   template <typename StreamT> void RenderCorpus(NativeStream<StreamT> &stream);
   template <typename StreamT> void RenderTail(NativeStream<StreamT> &stream);
-  void hello(Stream &s){
-    std::cout << "Hello From Stream!";
-  }
 };

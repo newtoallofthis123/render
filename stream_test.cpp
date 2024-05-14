@@ -1,8 +1,8 @@
-#define BOOST_TEST_MODULE STREAM_TEST
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include "doctest.h"
+#include "stream.h"
 #include <sstream>
 #include <vector>
-#include "stream.h"
-#include <boost/test/included/unit_test.hpp>
 
 class InheritedClass : public Stream {
 public:
@@ -32,7 +32,7 @@ public:
   }
 };
 
-BOOST_AUTO_TEST_CASE(testing_stream) {
+TEST_CASE("testing an inherited stream class's render") {
   InheritedClass i;
 
   std::stringstream str;
@@ -41,7 +41,6 @@ BOOST_AUTO_TEST_CASE(testing_stream) {
 
   auto expected = "head tail ";
   auto actual = str.str();
-  std::cout << str.str();
 
-  BOOST_CHECK(expected == actual);
+  CHECK(expected == actual);
 }
