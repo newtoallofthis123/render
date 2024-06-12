@@ -3,8 +3,7 @@
 namespace Approach::Render {
  using std::string;
 
- template<NativeStream S = std::ostream>
- class Node : public Container<S> {
+ class Node : public Container {
  public:
 	explicit Node(const string &content) {
 	 this->content = content;

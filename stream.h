@@ -12,22 +12,23 @@ concept Store = requires(T t) {
 };
 
 template<typename T>
-concept NativeStream = std::is_base_of_v<
-				std::basic_ios<typename T::char_type, typename T::traits_type>,
-				std::remove_pointer_t<T>>;
+ requires std::is_base_of<
+									std::basic_ios<typename T::char_type, typename T::traits_type>,
+									std::remove_pointer_t<T>>::value
+using NativeStream = T;
 
 typedef unsigned long long int ProcUnit;
 
 namespace Approach::Render {
- template<NativeStream S = std::ostream>
  class Stream {
  public:
-	virtual void render(S &stream) = 0;
-
-	virtual void RenderHead(S &stream) = 0;
-
-	virtual void RenderCorpus(S &stream) = 0;
-
-	virtual void RenderTail(S &stream) = 0;
+	template<typename StreamT>
+	void render(NativeStream<StreamT> &stream) {};
+	template<typename StreamT>
+	void RenderHead(NativeStream<StreamT> &stream) {};
+	template<typename StreamT>
+	void RenderCorpus(NativeStream<StreamT> &stream) {};
+	template<typename StreamT>
+	void RenderTail(NativeStream<StreamT> &stream) {};
  };
 }// namespace Approach::Render

@@ -5,8 +5,7 @@
 #include <vector>
 
 namespace Approach::Render {
- template<NativeStream S = std::ostream>
- class XML : public Node<S> {
+ class XML : public Node {
  public:
 	enum class Option : ProcUnit {
 	 id = 0,
@@ -132,12 +131,12 @@ namespace Approach::Render {
 				 *                       */
 
 	/** Nests child nodes into the instance by pointer */
-	inline void operator<<(Node<S> *object) {
+	inline void operator<<(Node *object) {
 	 this->nodes.push_back((XML *) (object));
 	}
 
 	/** Nests child nodes into the instance by reference */
-	inline void operator<<(Node<S> &object) {
+	inline void operator<<(Node &object) {
 	 this->nodes.push_back((XML *) (&object));
 	}
 
@@ -150,14 +149,14 @@ namespace Approach::Render {
 	 this->RenderTail(stream);
 	}
 
-	void render(std::ostream &stream) override {
+	void render(std::ostream &stream)  {
 	 this->RenderHead(stream);
 	 this->RenderCorpus(stream);
 	 this->RenderTail(stream);
 	}
 
 	/** Outputs this node's tag, id and attributes to the stream. */
-	void RenderHead(std::ostream &stream) override {
+	void RenderHead(std::ostream &stream)  {
 	 // stream opening tag
 	 stream << std::endl
 					<< "<";// open tag
@@ -186,7 +185,7 @@ namespace Approach::Render {
 	}
 
 	/** Outputs any child nodes to stream. */
-	void RenderCorpus(std::ostream &stream) override {
+	void RenderCorpus(std::ostream &stream)  {
 	 if (!this->nodes.empty())
 		for (auto &node: this->nodes) {
 		 stream << *(XML *) node;
@@ -194,7 +193,7 @@ namespace Approach::Render {
 	}
 
 	/** Outputs closing tag to stream. */
-	void RenderTail(std::ostream &stream) override {
+	void RenderTail(std::ostream &stream)  {
 	 stream << std::endl
 					<< "</" << this->tag << ">";
 	}

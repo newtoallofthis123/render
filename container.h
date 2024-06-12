@@ -7,14 +7,13 @@
 #include <vector>
 
 namespace Approach::Render {
- template<NativeStream S = std::ostream>
- class Container : public Stream<S> {
+ class Container : public Stream {
  private:
 	ProcUnit ActiveRenderCount = 0;
 
  public:
 	ProcUnit RenderID{};
-	std::vector<Stream<S> *> nodes;
+	std::vector<Stream *> nodes;
 
 	Container() { SetRenderID(); }
 
@@ -28,11 +27,12 @@ namespace Approach::Render {
 	 ++ActiveRenderCount;
 	};
 
-	Stream<S> *offsetGet(const std::string &label) {
+	Stream *offsetGet(const std::string &label) {
 	 auto index = getNodeLabelIndex(label);
+	 return getLabeledNode(index);
 	}
 
-	void offsetSet(const std::string &label, Stream<S> *obj) {
+	void offsetSet(const std::string &label, Stream *obj) {
 	 auto offset = getNodeLabelIndex(label);
 
 	 this->nodes.push_back(obj);
@@ -45,7 +45,7 @@ namespace Approach::Render {
 	 }
 	}
 
-	Stream<S> *getLabeledNode(int label_index) {
+	Stream *getLabeledNode(int label_index) {
 	 return this->nodes[_labeled_nodes[label_index]];
 	}
 
@@ -58,22 +58,16 @@ namespace Approach::Render {
 	 }
 	}
 
-	void render(std::ostream &stream) override {
+	virtual void render(std::ostream &stream) {
 	 this->RenderHead(stream);
 	 this->RenderCorpus(stream);
 	 this->RenderTail(stream);
 	}
 
-	void RenderHead(std::ostream &stream) override {
-	}
-
-	void RenderCorpus(std::ostream &stream) override {
+	virtual void RenderCorpus(std::ostream &stream) {
 	 for (auto &node: this->nodes) {
 		stream << node;
 	 }
-	}
-
-	void RenderTail(std::ostream &stream) override {
 	}
 
 	void prerender(std::ostream &stream) {
@@ -81,41 +75,41 @@ namespace Approach::Render {
 	 this->RenderTail(stream);
 	}
 
-	Stream<S> *operator[](const std::string &label) { return offsetGet(label); }
+	Stream *operator[](const std::string &label) { return offsetGet(label); }
 
 	// enable s[0] = new Stream();
-	Stream<S> *operator[](int index) { return nodes[index]; }
+	Stream *operator[](int index) { return nodes[index]; }
 
 	// enable setting s[0] = new Stream();
-	Container &operator=(Stream<S> *node) {
+	Container &operator=(Stream *node) {
 	 this->nodes.push_back(node);
 	 return *this;
 	}
 
 	// add << operator to add a node to the container
-	inline Container &operator<<(Stream<S> &node) {
+	inline Container &operator<<(Stream &node) {
 	 this->nodes.push_back(&node);
 	 return *this;
 	}
 
-	inline friend Container &operator<<(Stream<S> &node, Container &to) {
+	inline friend Container &operator<<(Stream &node, Container &to) {
 	 to.nodes.push_back(&node);
 	 return to;
 	}
 
 	// add << operator to add a node to the container
-	inline Container &operator<<(Stream<S> *node) {
+	inline Container &operator<<(Stream *node) {
 	 this->nodes.push_back(node);
 	 return *this;
 	}
 
-	inline friend Container &operator<<(Stream<S> *node, Container &to) {
+	inline friend Container &operator<<(Stream *node, Container &to) {
 	 to.nodes.push_back(node);
 	 return to;
 	}
 
 	/** Supports "normal" syntax cout<<XML; is not really a member function */
-	inline friend Stream<S> &operator<<(Container &to, Container &node) {
+	inline friend Stream &operator<<(Container &to, Container &node) {
 	 to.nodes.push_back(&node);
 	 return to;
 	}
@@ -143,18 +137,16 @@ namespace Approach::Render {
 /*
   Add friend << operator to add a node to the container
 */
-template<NativeStream S>
-inline Approach::Render::Stream<S> &
-operator<<(Approach::Render::Container<S> &container,
-					 Approach::Render::Stream<S> &node) {
+inline Approach::Render::Stream &
+operator<<(Approach::Render::Container &container,
+					 Approach::Render::Stream &node) {
  container.nodes.push_back(&node);
  return node;
 }
 
-template<NativeStream S>
-inline Approach::Render::Stream<S> &
-operator<<(Approach::Render::Container<S> &container,
-					 Approach::Render::Stream<S> *node) {
+inline Approach::Render::Stream &
+operator<<(Approach::Render::Container &container,
+					 Approach::Render::Stream *node) {
  container.nodes.push_back(node);
  return *node;
 }
