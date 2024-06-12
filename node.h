@@ -1,5 +1,4 @@
 #include "container.h"
-#include <map>
 
 namespace Approach::Render {
  using std::string;

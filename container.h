@@ -30,7 +30,6 @@ namespace Approach::Render {
 
 	Stream<S> *offsetGet(const std::string &label) {
 	 auto index = getNodeLabelIndex(label);
-	 return getLabeledNode(index);
 	}
 
 	void offsetSet(const std::string &label, Stream<S> *obj) {
