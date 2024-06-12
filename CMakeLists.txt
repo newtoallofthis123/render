@@ -16,7 +16,7 @@ add_executable(render
         stream.h
         xml.h
         main.cpp
-        streamtype.h
+        streamtype.
         render.h
 )
 

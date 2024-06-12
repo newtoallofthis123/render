@@ -1,7 +1,7 @@
 #include "xml.h"
 using std::cout;
 
-int main(){
+int main() {
  Approach::Render::XML div("div");
 
  div.id = "cool";
