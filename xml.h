@@ -1,165 +1,215 @@
 #include "node.h"
 #include <map>
 #include <ostream>
+#include <string>
+#include <vector>
 
-namespace Option {
-enum {
-  id = 0,
-  tag,
-  attributes,
-  classes,
-  properties,
-  content,
-  data,
-  context,
-  binding,
-  component,
-  service,
-  message
-};
-}
-static ProcUnit ActiveRenderCount = 0;
+namespace Approach::Render {
+ class XML : public Node {
+ public:
+	enum class Option : ProcUnit {
+	 id = 0,
+	 tag,
+	 attributes,
+	 // classes,
+	 // properties,
+	 content,
+	 // data,
+	 // context,
+	 // binding,
+	 // component,
+	 // service,
+	 // message
+	};
 
-template <Stream stream> class XML : public Node<stream> {
-public:
-  ProcUnit RenderID;
-  std::string tag, id, content;
-  std::map<std::string, std::string> attributes;
-  std::vector<std::string> classes;
-  std::vector<XML *> nodes;
+	std::string tag, id;
+	std::map<std::string, std::string> attributes;
+	std::vector<std::string> classes;
 
-  inline const void SetRenderID() {
-    RenderID = ActiveRenderCount;
-    ++ActiveRenderCount;
-  }
+	/************************
+				 *   CONSTRUCTORS        *
+				 *                       *
+				 * Supply NULL to skip an argument
+				 * XML(tag [,options])
+				 * XML(tag,id [,options])
+				 * XML(tag,id,classes [,options])
+				 * XML(tag,id,classes,attributes [,options])
+				 * XML(tag,id,classes,attributes [,options])
+				 *                       *
+				 *                       */
 
-  XML(const std::string &_tag) throw() : tag(_tag) { XML::SetRenderID(); }
-  XML(const std::string &_tag, const std::string &_id)
-  throw() : tag(_tag), id(_id) { XML::SetRenderID(); }
-  XML(const std::string &_tag, const std::string &_id,
-      std::vector<std::string> &_classes)
-  throw() : tag(_tag), id(_id), classes(_classes) { XML::SetRenderID(); }
-  XML(const std::string &_tag, const std::string &_id,
-      std::vector<std::string> &_classes,
-      std::map<std::string, std::string> &_attributes)
-  throw() : tag(_tag), id(_id), classes(_classes), attributes(_attributes) {
-    XML::SetRenderID();
-  }
+	/* Strict Typing */
 
-  XML(const std::string &_tag, std::map<ProcUnit, void *> options)
-  throw() : tag(_tag) {
-    XML::SetRenderID();
-    SetOptions(options);
-  }
-  XML(const std::string &_tag, const std::string &_id,
-      std::map<ProcUnit, void *> options)
-  throw() : tag(_tag), id(_id) {
-    XML::SetRenderID();
-    SetOptions(options);
-  }
-  XML(const std::string &_tag, const std::string &_id,
-      std::vector<std::string> &_classes, std::map<ProcUnit, void *> options)
-  throw() : tag(_tag), id(_id), classes(_classes) {
-    XML::SetRenderID();
-    SetOptions(options);
-  }
-  XML(const std::string &_tag, const std::string &_id,
-      std::vector<std::string> &_classes,
-      std::map<std::string, std::string> &_attributes,
-      std::map<ProcUnit, void *> options)
-  throw() : tag(_tag), id(_id), classes(_classes), attributes(_attributes) {
-    XML::SetRenderID();
-    SetOptions(options);
-  }
+	explicit XML(const std::string &_tag) noexcept : tag(_tag) { XML::SetRenderID(); }
 
-  void SetOptions(std::map<ProcUnit, void *> options) {
-    std::map<ProcUnit, void *>::iterator option;
-    for (option = options.begin(); option != options.end(); ++option) {
-      switch (option->first) {
-      case Option::tag:
-        tag = *(std::string *)option->second;
-        break;
-      case Option::id:
-        id = *(std::string *)option->second;
-        break;
-      case Option::classes:
-        classes = *(std::vector<std::string> *)(option->second);
-        break;
-      case Option::attributes:
-        attributes = *(std::map<std::string, std::string> *)(option->second);
-        break;
-      default:
-        break;
-      }
-    }
-  }
+	XML(const std::string &_tag, const std::string &_id) noexcept : tag(_tag), id(_id) { XML::SetRenderID(); }
 
-  inline void operator<<(XML *object) {
-    this->nodes.push_back(static_cast<XML *>(object));
-  }
+	XML(const std::string &_tag, const std::string &_id,
+			std::vector<std::string> &_classes) noexcept : tag(_tag), id(_id), classes(_classes) { XML::SetRenderID(); }
 
-  inline void operator<<(XML &object) {
-    this->nodes.push_back(static_cast<XML *>(&object));
-  }
+	XML(const std::string &_tag, const std::string &_id,
+			std::vector<std::string> &_classes,
+			std::map<std::string, std::string> &_attributes) noexcept : tag(_tag), id(_id), classes(_classes), attributes(_attributes) {
+	 XML::SetRenderID();
+	}
 
-  inline XML operator[](unsigned int i) const {
-    if (i >= this->nodes.size()) {
-      throw std::out_of_range("Index out of range");
-    }
-    return *this->nodes[i];
-  }
+	explicit XML(std::string &_tag) noexcept : tag(_tag) { XML::SetRenderID(); }
 
-  inline XML &operator[](unsigned int i) {
-    if (i >= this->nodes.size()) {
-      throw std::out_of_range("Index out of range");
-    }
-    return *this->nodes[i];
-  }
+	XML(std::string &_tag, std::string &_id) noexcept : tag(_tag), id(_id) { XML::SetRenderID(); }
 
-  inline void render(stream &outputstream){
-    RenderHead(outputstream);
-    RenderCorpus(outputstream);
-    RenderTail(outputstream);
-  }
+	XML(std::string &_tag, std::string &_id, std::vector<std::string> &_classes) noexcept : tag(_tag), id(_id), classes(_classes) { XML::SetRenderID(); }
 
-  inline void RenderHead(stream &outputstream) {
-    outputstream << std::endl << "<";
-    if (!this->id.empty())
-      outputstream << this->tag << " id=\"" << this->id << "\"";
-    else
-      outputstream << this->tag;
+	XML(std::string &_tag, std::string &_id, std::vector<std::string> &_classes,
+			std::map<std::string, std::string> &_attributes) noexcept : tag(_tag), id(_id), classes(_classes), attributes(_attributes) {
+	 XML::SetRenderID();
+	}
 
-    if (!this->attributes.empty()) {
-      for (std::map<std::string, std::string>::const_iterator attribute =
-               this->attributes.begin();
-           attribute != this->attributes.end(); ++attribute) {
-        outputstream << " " << attribute->first << "=\"" << attribute->second
-                     << "\"";
-      }
-    }
-    outputstream << ">";
+	/* Mixed Typing */
 
-    if (!this->content.empty())
-      outputstream << std::endl << this->content << std::endl;
-  }
+	XML() { XML::SetRenderID(); }
 
-  inline void RenderCorpus(stream &outputstream) {
-    if (!this->nodes.empty())
-      for (ProcUnit i = 0, L = this->nodes.size(); i < L; ++i) {
-        outputstream << *this->nodes[i];
-      }
-  }
+	XML(std::string _tag, std::map<ProcUnit, void *> options) noexcept : tag(std::move(_tag)) {
+	 XML::SetRenderID();
+	 SetOptions(options);
+	}
 
-  inline void RenderTail(stream &outputstream) {
-    outputstream << std::endl << "</" << this->tag << ">";
-  }
+	XML(const std::string &_tag, const std::string &_id,
+			std::map<ProcUnit, void *> options) noexcept : tag(_tag), id(_id) {
+	 XML::SetRenderID();
+	 SetOptions(options);
+	}
 
-  inline void operator>>(stream &outputstream) {
-    render(outputstream);
-  }
+	XML(const std::string &_tag, const std::string &_id,
+			std::vector<std::string> &_classes, std::map<ProcUnit, void *> options) noexcept : tag(_tag), id(_id), classes(_classes) {
+	 XML::SetRenderID();
+	 SetOptions(options);
+	}
 
-  inline friend stream &operator<<(stream &outputstream, XML &obj) {
-    obj.render(outputstream);
-    return outputstream;
-  }
-};
+	XML(const std::string &_tag, const std::string &_id,
+			std::vector<std::string> &_classes,
+			std::map<std::string, std::string> &_attributes,
+			std::map<ProcUnit, void *> options) noexcept : tag(_tag), id(_id), classes(_classes), attributes(_attributes) {
+	 XML::SetRenderID();
+	 SetOptions(options);
+	}
+
+	/* Options only */
+
+	explicit XML(std::map<ProcUnit, void *> options) {
+	 XML::SetRenderID();
+	 SetOptions(options);
+	}
+
+	/************************
+				 *       ACTIONS         *
+				 *                       */
+
+	void SetOptions(std::map<ProcUnit, void *> options) {
+	 std::map<ProcUnit, void *>::iterator option;
+	 for (option = options.begin(); option != options.end(); ++option) {
+		switch ((XML::Option) option->first) {
+		 case Option::tag:
+			tag = *(std::string *) option->second;
+			break;
+		 case Option::id:
+			id = *(std::string *) option->second;
+			break;
+			// case Option::classes:
+			//   classes = *(std::vector<std::string> *)(option->second);
+			//   break;
+		 case Option::attributes:
+			attributes = *(std::map<std::string, std::string> *) (option->second);
+			break;
+		 default: /* generic option call; */
+			break;
+		}
+	 }
+	}
+
+	/************************
+				 *   STREAM TO CLASS     *
+				 *                       */
+
+	/** Nests child nodes into the instance by pointer */
+	inline void operator<<(Node *object) {
+	 this->nodes.push_back((XML *) (object));
+	}
+
+	/** Nests child nodes into the instance by reference */
+	inline void operator<<(Node &object) {
+	 this->nodes.push_back((XML *) (&object));
+	}
+
+	/************************
+				 *   RENDERING PIPELINE  *
+				 *                       */
+
+	void prerender(std::ostream &stream, const XML &object) {
+	 this->RenderHead(stream);
+	 this->RenderTail(stream);
+	}
+
+	void render(std::ostream &stream)  {
+	 this->RenderHead(stream);
+	 this->RenderCorpus(stream);
+	 this->RenderTail(stream);
+	}
+
+	/** Outputs this node's tag, id and attributes to the stream. */
+	void RenderHead(std::ostream &stream)  {
+	 // stream opening tag
+	 stream << std::endl
+					<< "<";// open tag
+	 if (!this->id.empty())
+		stream << this->tag << " id=\"" << this->id << "\"";
+	 else {
+		stream << this->tag;
+	 }
+
+	 // stream attributes
+	 if (!this->attributes.empty())// if node has attributes
+	 {
+		for (auto attribute = this->attributes.begin();
+				 attribute != this->attributes.end();
+				 ++attribute)// for each attribute
+		{
+		 stream << " " << attribute->first << "=\"" << attribute->second
+						<< "\"";// output attribute to stream
+		}
+	 }
+	 stream << ">";// close tag
+
+	 if (!this->content.empty())
+		stream << std::endl
+					 << this->content << std::endl;
+	}
+
+	/** Outputs any child nodes to stream. */
+	void RenderCorpus(std::ostream &stream)  {
+	 if (!this->nodes.empty())
+		for (auto &node: this->nodes) {
+		 stream << *(XML *) node;
+		}
+	}
+
+	/** Outputs closing tag to stream. */
+	void RenderTail(std::ostream &stream)  {
+	 stream << std::endl
+					<< "</" << this->tag << ">";
+	}
+
+	/************************
+				 *   STREAM OPERATORS    *
+				 *                       */
+
+	/** Funky XML>>cout syntax, works in situations without the non-member friend
+				 */
+	void operator>>(std::ostream &stream) { this->render(stream); }
+
+	/** Supports "normal" syntax cout<<XML; is not really a member function */
+	friend std::ostream &operator<<(std::ostream &stream, XML &obj) {
+	 obj.render(stream);
+	 return stream;
+	}
+ };
+}// namespace Approach::Render
